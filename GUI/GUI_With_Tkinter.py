@@ -2,6 +2,14 @@ import tkinter as tk
 from tkinter import messagebox
 import sqlite3
 
+class DatabaseHandler:
+    def __enter__(self):
+        self.connection = sqlite3.connect("Hospital.db")
+        self.cursor = self.connection.cursor()
+        return self.cursor
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.connection.close()
 
 class LoginSystem(tk.Tk):
     def __init__(self):
@@ -39,23 +47,14 @@ class LoginSystem(tk.Tk):
 
     def authenticate_user(self, username, password):
         try:
-            # Connect to the database
-            connection = sqlite3.connect("hospital.db")
-            cursor = connection.cursor()
-
-            # Execute SQL query to check user credentials
-            cursor.execute(
-                f"SELECT * FROM Auth WHERE login='{username}' AND password='{password}'"
-            )
-            user = cursor.fetchone()
-
-            # Close the database connection
-            connection.close()
+            with DatabaseHandler() as cursor:
+                cursor.execute("SELECT * FROM Auth WHERE login=? AND password=?", (username, password))
+                user = cursor.fetchone()
 
             return user is not None
 
-        except Exception as e:
-            print(f"Error: {e}")
+        except sqlite3.Error as e:
+            print(f"SQLite Error: {e}")
             return False
 
     def login_clicked(self):
@@ -65,7 +64,7 @@ class LoginSystem(tk.Tk):
         if self.authenticate_user(username, password):
             self.show_welcome_frame(username)
         else:
-            messagebox.showerror("Login Error", "You have written something wrong")
+            messagebox.showerror("Login Error", "Incorrect username or password")
 
     def sign_out_clicked(self):
         self.show_login_frame()
@@ -80,7 +79,6 @@ class LoginSystem(tk.Tk):
         self.welcome_label.config(text=f"Welcome, {username}!")
         self.welcome_frame.pack()
         self.geometry("800x600")
-
 
 if __name__ == "__main__":
     login_system = LoginSystem()
