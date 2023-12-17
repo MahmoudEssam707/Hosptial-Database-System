@@ -10,9 +10,6 @@ DROP TABLE IF EXISTS Nurse;
 DROP TABLE IF EXISTS Doctor;
 DROP TABLE IF EXISTS Person;
 
--- Reset auto-increment counters
-DELETE FROM sqlite_sequence WHERE name IN ('WorksAt', 'Register', 'Auth', 'Room', 'Hospital', 'Patient', 'WardBoy', 'Nurse', 'Doctor', 'Person');
-
 -- Create Tables
 CREATE TABLE IF NOT EXISTS Person (
     PersonID INTEGER PRIMARY KEY,
@@ -95,6 +92,30 @@ CREATE TABLE IF NOT EXISTS Auth (
     Password TEXT
 );
 
+--__________________________________________________________________________________________________
+--Triggers
+
+CREATE TRIGGER update_total_cost_insert_trigger
+AFTER INSERT ON Patient
+FOR EACH ROW
+BEGIN
+    UPDATE Patient
+    SET Total_Cost = NEW.Bed_Cost + NEW.Treatment_Cost
+    WHERE PersonID = NEW.PersonID;
+END;
+
+CREATE TRIGGER update_total_cost_update_trigger
+BEFORE UPDATE ON Patient
+FOR EACH ROW
+BEGIN
+    UPDATE Patient
+    SET Total_Cost = NEW.Bed_Cost + NEW.Treatment_Cost
+    WHERE PersonID = NEW.PersonID;
+END;
+
+
+--__________________________________________________________________________________________________
+--Insertions
 -- Insert 20 records into Person
 INSERT INTO Person (PersonID, PName, PPhone, PEmail, PDate, PAddress, PGender)
 VALUES
@@ -121,9 +142,34 @@ VALUES
 (4002, 'Ward Boy 2', '999-000-1111', 'wardboy2@email.com', '1992-02-28', '876 Cedar Avenue', 'Female'),
 (4003, 'Ward Boy 3', '111-222-3333', 'wardboy3@email.com', '1997-07-10', '765 Oak Lane', 'Male'),
 (4004, 'Ward Boy 4', '222-333-4444', 'wardboy4@email.com', '2002-12-25', '876 Pine Drive', 'Female'),
-(4005, 'Ward Boy 5', '333-444-5555', 'wardboy5@email.com', '2007-05-05', '987 Elm Avenue', 'Male');
+(4005, 'Ward Boy 5', '333-444-5555', 'wardboy5@email.com', '2007-05-05', '987 Elm Avenue', 'Male'),
+-- Additional Doctors (ID range: 1006 - 1010)
+(1006, 'Doctor 6', '666-777-8888', 'doctor6@email.com', '1993-05-10', '303 Oak Street', 'Female'),
+(1007, 'Doctor 7', '777-888-9999', 'doctor7@email.com', '1985-07-18', '404 Pine Avenue', 'Male'),
+(1008, 'Doctor 8', '888-999-0000', 'doctor8@email.com', '1978-09-23', '505 Maple Road', 'Female'),
+(1009, 'Doctor 9', '999-000-1111', 'doctor9@email.com', '1982-03-08', '606 Cedar Lane', 'Male'),
+(1010, 'Doctor 10', '111-222-3333', 'doctor10@email.com', '1975-12-15', '707 Elm Drive', 'Female'),
+-- Additional Patients (ID range: 2006 - 2010)
+(2006, 'Patient 6', '333-444-5555', 'patient6@email.com', '2000-08-15', '404 Pine Avenue', 'Male'),
+(2007, 'Patient 7', '444-555-6666', 'patient7@email.com', '2005-02-20', '505 Maple Road', 'Female'),
+(2008, 'Patient 8', '555-666-7777', 'patient8@email.com', '1998-11-25', '606 Cedar Lane', 'Male'),
+(2009, 'Patient 9', '666-777-8888', 'patient9@email.com', '1993-07-30', '707 Elm Drive', 'Female'),
+(2010, 'Patient 10', '777-888-9999', 'patient10@email.com', '1989-04-05', '808 Oak Street', 'Male'),
+-- Additional Nurses (ID range: 3006 - 3010)
+(3006, 'Nurse 6', '444-555-6666', 'nurse6@email.com', '1991-12-20', '505 Maple Road', 'Female'),
+(3007, 'Nurse 7', '555-666-7777', 'nurse7@email.com', '1996-04-15', '606 Cedar Lane', 'Male'),
+(3008, 'Nurse 8', '666-777-8888', 'nurse8@email.com', '2001-10-10', '707 Elm Drive', 'Female'),
+(3009, 'Nurse 9', '777-888-9999', 'nurse9@email.com', '2006-03-25', '808 Oak Street', 'Male'),
+(3010, 'Nurse 10', '888-999-0000', 'nurse10@email.com', '2010-08-10', '909 Pine Avenue', 'Female'),
+-- Additional Ward Boys (ID range: 4006 - 4010)
+(4006, 'Ward Boy 6', '555-666-7777', 'wardboy6@email.com', '1997-02-25', '606 Cedar Lane', 'Male'),
+(4007, 'Ward Boy 7', '666-777-8888', 'wardboy7@email.com', '2002-07-05', '707 Elm Drive', 'Female'),
+(4008, 'Ward Boy 8', '777-888-9999', 'wardboy8@email.com', '2007-12-20', '808 Oak Street', 'Male'),
+(4009, 'Ward Boy 9', '888-999-0000', 'wardboy9@email.com', '2012-05-05', '909 Pine Avenue', 'Female'),
+(4010, 'Ward Boy 10', '999-000-1111', 'wardboy10@email.com', '2017-10-20', '1010 Main Road', 'Male');
 
--- Insert 5 records into Doctor
+
+-- Insert 10 records into Doctor
 INSERT INTO Doctor (PersonID, Specialization)
 VALUES
 -- Doctor 1
@@ -135,10 +181,19 @@ VALUES
 -- Doctor 4
 (1004, 'Neurologist'), 
 -- Doctor 5
-(1005, 'Pediatrician');
+(1005, 'Pediatrician'),
+-- Doctor 6
+(1006, 'Oncologist'),
+-- Doctor 7
+(1007, 'Psychiatrist'),
+-- Doctor 8
+(1008, 'Gynecologist'),
+-- Doctor 9
+(1009, 'Urologist'),
+-- Doctor 10
+(1010, 'ENT Specialist');
 
-
--- Insert 5 records into Nurse (changed)
+-- Insert 10 more records into Nurse
 INSERT INTO Nurse (PersonID)
 VALUES
 -- Nurse 1
@@ -150,7 +205,18 @@ VALUES
 -- Nurse 4
 ((SELECT PersonID FROM Person WHERE PersonID = 3004)),
 -- Nurse 5
-((SELECT PersonID FROM Person WHERE PersonID = 3005));
+((SELECT PersonID FROM Person WHERE PersonID = 3005)),
+-- Nurse 6
+((SELECT PersonID FROM Person WHERE PersonID = 3006)),
+-- Nurse 7
+((SELECT PersonID FROM Person WHERE PersonID = 3007)),
+-- Nurse 8
+((SELECT PersonID FROM Person WHERE PersonID = 3008)),
+-- Nurse 9
+((SELECT PersonID FROM Person WHERE PersonID = 3009)),
+-- Nurse 10
+((SELECT PersonID FROM Person WHERE PersonID = 3010));
+
 
 -- Insert 5 records into WardBoy (changed)
 INSERT INTO WardBoy (PersonID)
@@ -164,7 +230,17 @@ VALUES
 -- Ward Boy 4
 ((SELECT PersonID FROM Person WHERE PersonID = 4004)),
 -- Ward Boy 5
-((SELECT PersonID FROM Person WHERE PersonID = 4005));
+((SELECT PersonID FROM Person WHERE PersonID = 4005)),
+-- Ward Boy 6
+((SELECT PersonID FROM Person WHERE PersonID = 4006)),
+-- Ward Boy 7
+((SELECT PersonID FROM Person WHERE PersonID = 4007)),
+-- Ward Boy 8
+((SELECT PersonID FROM Person WHERE PersonID = 4008)),
+-- Ward Boy 9
+((SELECT PersonID FROM Person WHERE PersonID = 4009)),
+-- Ward Boy 10
+((SELECT PersonID FROM Person WHERE PersonID = 4010));
 
 
 -- Insert 5 records into Patient (changed)
@@ -178,69 +254,75 @@ VALUES
 (2003, 'Patient 3 Description', 'Migraine', 'Neurological Evaluation and Medication', (SELECT PersonID FROM Doctor WHERE PersonID = 1003), 180.00, 350.00),
 -- Patient 4
 (2004, 'Patient 4 Description', 'Allergy', 'Dermatological Consultation and Medication', (SELECT PersonID FROM Doctor WHERE PersonID = 1004), 170.00, 320.00),
--- Patient 
-(2005, 'Patient 5 Description', 'Infection', 'Pediatric Consultation and Antibiotics', (SELECT PersonID FROM Doctor WHERE PersonID = 1005), 160.00, 310.00);
+-- Patient 5 
+(2005, 'Patient 5 Description', 'Infection', 'Pediatric Consultation and Antibiotics', (SELECT PersonID FROM Doctor WHERE PersonID = 1005), 160.00, 310.00),
+-- Patient 6
+(2006, 'Patient 6 Description', 'Diabetes', 'Endocrinology Consultation and Medication', (SELECT PersonID FROM Doctor WHERE PersonID = 1006), 120.00, 250.00),
+-- Patient 7
+(2007, 'Patient 7 Description', 'Anxiety', 'Psychiatric Evaluation and Therapy', (SELECT PersonID FROM Doctor WHERE PersonID = 1007), 130.00, 260.00),
+-- Patient 8
+(2008, 'Patient 8 Description', 'Pregnancy', 'Obstetric Consultation and Care', (SELECT PersonID FROM Doctor WHERE PersonID = 1008), 140.00, 270.00),
+-- Patient 9
+(2009, 'Patient 9 Description', 'Kidney Stones', 'Urological Consultation and Treatment', (SELECT PersonID FROM Doctor WHERE PersonID = 1009), 150.00, 280.00),
+-- Patient 10
+(2010, 'Patient 10 Description', 'Ear Infection', 'ENT Consultation and Medication', (SELECT PersonID FROM Doctor WHERE PersonID = 1010), 160.00, 290.00);
 
--- Insert 1 record into Auth
-INSERT INTO Auth (ID, Password)
-VALUES ('Admin', 'Admin');
-
--- Insert 5 records into Hospital
+-- Insert 10 records into Hospital
 INSERT INTO Hospital (HID, Hemail, HWeb, HAddress, HPhone, HName)
 VALUES
 (1, 'hospital1@email.com', 'www.hospital1.com', '123 Medical Avenue', '111-222-3333', 'General Hospital 1'),
 (2, 'hospital2@email.com', 'www.hospital2.com', '456 Health Street', '222-333-4444', 'Medical Centre 2'),
 (3, 'hospital3@email.com', 'www.hospital3.com', '789 Wellness Road', '333-444-5555', 'Healthcare Hub 3'),
 (4, 'hospital4@email.com', 'www.hospital4.com', '101 Healing Lane', '444-555-6666', 'Wellbeing Clinic 4'),
-(5, 'hospital5@email.com', 'www.hospital5.com', '202 Recovery Drive', '555-666-7777', 'Healing Centre 5');
+(5, 'hospital5@email.com', 'www.hospital5.com', '202 Recovery Drive', '555-666-7777', 'Healing Centre 5'),
+(6, 'hospital6@email.com', 'www.hospital6.com', '303 Recovery Drive', '666-777-8888', 'Specialised Clinic 6'),
+(7, 'hospital7@email.com', 'www.hospital7.com', '404 Healing Lane', '777-888-9999', 'Wellness Centre 7'),
+(8, 'hospital8@email.com', 'www.hospital8.com', '505 Medical Avenue', '888-999-0000', 'Care Hospital 8'),
+(9, 'hospital9@email.com', 'www.hospital9.com', '606 Health Street', '999-000-1111', 'Recovery Clinic 9'),
+(10, 'hospital10@email.com', 'www.hospital10.com', '707 Wellness Road', '111-222-3333', 'Healing Hub 10');
 
--- Insert 5 records into Room
+-- Insert 10 more records into Room
 INSERT INTO Room (RID, RType, HID)
 VALUES
 (1, 'Standard', 1),
 (2, 'Deluxe', 2),
 (3, 'Private', 3),
 (4, 'Shared', 4),
-(5, 'ICU', 5);
+(5, 'ICU', 5),
+(6, 'Suite', 6),
+(7, 'Standard', 7),
+(8, 'Private', 8),
+(9, 'Deluxe', 9),
+(10, 'ICU', 10);
 
--- Insert 5 records into WorksAt (changed)
+-- Insert 10 more records into WorksAt (continued)
 INSERT INTO WorksAt (DoctorID, NurseID, WardBoyID, HID)
 VALUES
 ((SELECT PersonID FROM Doctor WHERE PersonID = 1001), (SELECT PersonID FROM Nurse WHERE PersonID = 3001), (SELECT PersonID FROM WardBoy WHERE PersonID = 4001), (SELECT HID FROM Hospital WHERE HID = 1)),
 ((SELECT PersonID FROM Doctor WHERE PersonID = 1002), (SELECT PersonID FROM Nurse WHERE PersonID = 3002), (SELECT PersonID FROM WardBoy WHERE PersonID = 4002), (SELECT HID FROM Hospital WHERE HID = 2)),
 ((SELECT PersonID FROM Doctor WHERE PersonID = 1003), (SELECT PersonID FROM Nurse WHERE PersonID = 3003), (SELECT PersonID FROM WardBoy WHERE PersonID = 4003), (SELECT HID FROM Hospital WHERE HID = 3)),
 ((SELECT PersonID FROM Doctor WHERE PersonID = 1004), (SELECT PersonID FROM Nurse WHERE PersonID = 3004), (SELECT PersonID FROM WardBoy WHERE PersonID = 4004), (SELECT HID FROM Hospital WHERE HID = 4)),
-((SELECT PersonID FROM Doctor WHERE PersonID = 1005), (SELECT PersonID FROM Nurse WHERE PersonID = 3005), (SELECT PersonID FROM WardBoy WHERE PersonID = 4005), (SELECT HID FROM Hospital WHERE HID = 5));
+((SELECT PersonID FROM Doctor WHERE PersonID = 1005), (SELECT PersonID FROM Nurse WHERE PersonID = 3005), (SELECT PersonID FROM WardBoy WHERE PersonID = 4005), (SELECT HID FROM Hospital WHERE HID = 5)),
+((SELECT PersonID FROM Doctor WHERE PersonID = 1006), (SELECT PersonID FROM Nurse WHERE PersonID = 3006), (SELECT PersonID FROM WardBoy WHERE PersonID = 4006), (SELECT HID FROM Hospital WHERE HID = 6)),
+((SELECT PersonID FROM Doctor WHERE PersonID = 1007), (SELECT PersonID FROM Nurse WHERE PersonID = 3007), (SELECT PersonID FROM WardBoy WHERE PersonID = 4007), (SELECT HID FROM Hospital WHERE HID = 7)),
+((SELECT PersonID FROM Doctor WHERE PersonID = 1008), (SELECT PersonID FROM Nurse WHERE PersonID = 3008), (SELECT PersonID FROM WardBoy WHERE PersonID = 4008), (SELECT HID FROM Hospital WHERE HID = 8)),
+((SELECT PersonID FROM Doctor WHERE PersonID = 1009), (SELECT PersonID FROM Nurse WHERE PersonID = 3009), (SELECT PersonID FROM WardBoy WHERE PersonID = 4009), (SELECT HID FROM Hospital WHERE HID = 9)),
+((SELECT PersonID FROM Doctor WHERE PersonID = 1010), (SELECT PersonID FROM Nurse WHERE PersonID = 3010), (SELECT PersonID FROM WardBoy WHERE PersonID = 4010), (SELECT HID FROM Hospital WHERE HID = 10));
 
--- Insert 5 records into Register (changed)
+-- Insert 10 more records into Register
 INSERT INTO Register (PatientID, DoctorID, RTime)
 VALUES
 ((SELECT PersonID FROM Patient WHERE PersonID = 2001), (SELECT PersonID FROM Doctor WHERE PersonID = 1001), '2023-01-01 08:00:00'),
 ((SELECT PersonID FROM Patient WHERE PersonID = 2002), (SELECT PersonID FROM Doctor WHERE PersonID = 1002), '2023-01-02 09:30:00'),
 ((SELECT PersonID FROM Patient WHERE PersonID = 2003), (SELECT PersonID FROM Doctor WHERE PersonID = 1003), '2023-01-03 11:15:00'),
 ((SELECT PersonID FROM Patient WHERE PersonID = 2004), (SELECT PersonID FROM Doctor WHERE PersonID = 1004), '2023-01-04 13:45:00'),
-((SELECT PersonID FROM Patient WHERE PersonID = 2005), (SELECT PersonID FROM Doctor WHERE PersonID = 1005), '2023-01-05 15:30:00');
+((SELECT PersonID FROM Patient WHERE PersonID = 2005), (SELECT PersonID FROM Doctor WHERE PersonID = 1005), '2023-01-05 15:30:00'),
+((SELECT PersonID FROM Patient WHERE PersonID = 2006), (SELECT PersonID FROM Doctor WHERE PersonID = 1006), '2023-01-06 10:00:00'),
+((SELECT PersonID FROM Patient WHERE PersonID = 2007), (SELECT PersonID FROM Doctor WHERE PersonID = 1007), '2023-01-07 11:30:00'),
+((SELECT PersonID FROM Patient WHERE PersonID = 2008), (SELECT PersonID FROM Doctor WHERE PersonID = 1008), '2023-01-08 13:15:00'),
+((SELECT PersonID FROM Patient WHERE PersonID = 2009), (SELECT PersonID FROM Doctor WHERE PersonID = 1009), '2023-01-09 15:45:00'),
+((SELECT PersonID FROM Patient WHERE PersonID = 2010), (SELECT PersonID FROM Doctor WHERE PersonID = 1010), '2023-01-10 16:45:00');
 
-
-DONT USE THIS TRIGGERS FUCK YOU 7ODA
--- Trigger for BEFORE INSERT
-DELIMITER //
-CREATE TRIGGER update_total_cost_insert_trigger
-BEFORE INSERT ON Patient
-FOR EACH ROW
-BEGIN
-    SET NEW.Total_Cost = NEW.Bed_Cost + NEW.Treatment_Cost;
-END;
-//
-DELIMITER ;
-
--- Trigger for BEFORE UPDATE
-DELIMITER //
-CREATE TRIGGER update_total_cost_update_trigger
-BEFORE UPDATE ON Patient
-FOR EACH ROW
-BEGIN
-    SET NEW.Total_Cost = NEW.Bed_Cost + NEW.Treatment_Cost;
-END;
-//
-DELIMITER ;
+-- Insert 1 more record into Auth
+INSERT INTO Auth (ID, Password)
+VALUES ('Admin', 'Admin');
