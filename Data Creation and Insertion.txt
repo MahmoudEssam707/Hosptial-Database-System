@@ -93,25 +93,27 @@ CREATE TABLE IF NOT EXISTS Auth (
 );
 
 --__________________________________________________________________________________________________
---Triggers
-
+-- Trigger before insert
+DELIMITER //
 CREATE TRIGGER update_total_cost_insert_trigger
-AFTER INSERT ON Patient
+BEFORE INSERT ON Patient
 FOR EACH ROW
 BEGIN
-    UPDATE Patient
-    SET Total_Cost = NEW.Bed_Cost + NEW.Treatment_Cost
-    WHERE PersonID = NEW.PersonID;
+    SET NEW.Total_Cost = NEW.Bed_Cost + NEW.Treatment_Cost;
 END;
+//
+DELIMITER ;
 
+-- Trigger before update
+DELIMITER //
 CREATE TRIGGER update_total_cost_update_trigger
 BEFORE UPDATE ON Patient
 FOR EACH ROW
 BEGIN
-    UPDATE Patient
-    SET Total_Cost = NEW.Bed_Cost + NEW.Treatment_Cost
-    WHERE PersonID = NEW.PersonID;
+    SET NEW.Total_Cost = NEW.Bed_Cost + NEW.Treatment_Cost;
 END;
+//
+DELIMITER ;
 
 
 --__________________________________________________________________________________________________
@@ -218,7 +220,7 @@ VALUES
 ((SELECT PersonID FROM Person WHERE PersonID = 3010));
 
 
--- Insert 5 records into WardBoy (changed)
+-- Insert 10 records into WardBoy (changed)
 INSERT INTO WardBoy (PersonID)
 VALUES
 -- Ward Boy 1
