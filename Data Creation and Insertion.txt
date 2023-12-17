@@ -168,18 +168,18 @@ VALUES
 
 
 -- Insert 5 records into Patient (changed)
-INSERT INTO Patient (PersonID, Description, Disease, Treatment, DoctorID, Treatment_Cost, Bed_Cost, Total_Cost)
+INSERT INTO Patient (PersonID, Description, Disease, Treatment, DoctorID, Treatment_Cost, Bed_Cost)
 VALUES
 -- Patient 1
-(2001, 'Patient 1 Description', 'Fever', 'Rest and Medication', (SELECT PersonID FROM Doctor WHERE PersonID = 1001), 150.00, 300.00, 450.00),
+(2001, 'Patient 1 Description', 'Fever', 'Rest and Medication', (SELECT PersonID FROM Doctor WHERE PersonID = 1001), 150.00, 300.00),
 -- Patient 2
-(2002, 'Patient 2 Description', 'Fracture', 'Orthopedic Consultation and Cast', (SELECT PersonID FROM Doctor WHERE PersonID = 1002), 200.00, 400.00, 600.00),
+(2002, 'Patient 2 Description', 'Fracture', 'Orthopedic Consultation and Cast', (SELECT PersonID FROM Doctor WHERE PersonID = 1002), 200.00, 400.00),
 -- Patient 3
-(2003, 'Patient 3 Description', 'Migraine', 'Neurological Evaluation and Medication', (SELECT PersonID FROM Doctor WHERE PersonID = 1003), 180.00, 350.00, 530.00),
+(2003, 'Patient 3 Description', 'Migraine', 'Neurological Evaluation and Medication', (SELECT PersonID FROM Doctor WHERE PersonID = 1003), 180.00, 350.00),
 -- Patient 4
-(2004, 'Patient 4 Description', 'Allergy', 'Dermatological Consultation and Medication', (SELECT PersonID FROM Doctor WHERE PersonID = 1004), 170.00, 320.00, 490.00),
--- Patient 5
-(2005, 'Patient 5 Description', 'Infection', 'Pediatric Consultation and Antibiotics', (SELECT PersonID FROM Doctor WHERE PersonID = 1005), 160.00, 310.00, 470.00);
+(2004, 'Patient 4 Description', 'Allergy', 'Dermatological Consultation and Medication', (SELECT PersonID FROM Doctor WHERE PersonID = 1004), 170.00, 320.00),
+-- Patient 
+(2005, 'Patient 5 Description', 'Infection', 'Pediatric Consultation and Antibiotics', (SELECT PersonID FROM Doctor WHERE PersonID = 1005), 160.00, 310.00);
 
 -- Insert 1 record into Auth
 INSERT INTO Auth (ID, Password)
@@ -221,6 +221,8 @@ VALUES
 ((SELECT PersonID FROM Patient WHERE PersonID = 2004), (SELECT PersonID FROM Doctor WHERE PersonID = 1004), '2023-01-04 13:45:00'),
 ((SELECT PersonID FROM Patient WHERE PersonID = 2005), (SELECT PersonID FROM Doctor WHERE PersonID = 1005), '2023-01-05 15:30:00');
 
+
+DONT USE THIS TRIGGERS FUCK YOU 7ODA
 -- Trigger for BEFORE INSERT
 DELIMITER //
 CREATE TRIGGER update_total_cost_insert_trigger
