@@ -326,3 +326,7 @@ VALUES
 -- Insert 1 more record into Auth
 INSERT INTO Auth (ID, Password)
 VALUES ('Admin', 'Admin');
+
+--__________________________________________________________________________________________________
+--Indices
+CREATE INDEX Person_Indices ON Person (PersonID);
